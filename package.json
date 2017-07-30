@@ -1,0 +1,34 @@
+{
+  "name": "layer-visualization",
+  "version": "0.1.0",
+  "description": "A library which renders d3 svg diagrams",
+  "main": "gulpfiles.js",
+  "dependencies": {
+    "combinations-generator": "^1.0.1",
+    "d3": "^4.10.0"
+  },
+  "devDependencies": {
+    "bluebird": "^3.5.0",
+    "mocha": "^3.4.2",
+    "pn": "^1.0.0",
+    "underscore": "^1.8.3"
+  },
+  "watch": {
+    "w": {
+      "patterns": [
+        "src",
+        "test",
+        "gulpfile.js",
+        "release.json"
+      ],
+      "extensions": "js,jsx,hbs,ts,json,css"
+    }
+  },
+  "scripts": {
+    "test": "mocha",
+    "w": "browserify -r ./src/main/js/vis.js:vis -o build/vis.js && mocha"
+  },
+  "author": "Phil Tomlinson",
+  "license": "ISC",
+  "homepage": "https://xceptionale.co"
+}
