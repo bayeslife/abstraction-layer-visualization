@@ -1,11 +1,11 @@
 
-function createVisualization(modelFactory,options= { width:100,height:100}) {
+function createVisualization(modelFactory,options= { nodesize: 10,width:100,height:100}) {
 
   var d3 = require('d3');
 
   var combo = require('combinations-generator');
 
-  const nodesize=10;
+  const nodesize=options.nodesize;
 
 
   var margin=30, width = options.width, height = options.height;
@@ -16,6 +16,7 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
   var svg;
 
   var stacks = [];
+
 
   const model = modelFactory({nodesize: nodesize, width: width, height: height});
 
@@ -58,20 +59,20 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
       })
       return all;
     }
-    function allNonServices(){
-      var all = [];
-      this.layers.forEach(function(layer){
-        all = all.concat(layer.hierarchy.leaves().filter(function(n){return n.fixed}))
-      })
-      return all;
-    }
-    function allServices(){
-      var all = [];
-      this.layers.forEach(function(layer){
-        all = all.concat(layer.hierarchy.leaves().filter(function(n){return !n.fixed}))
-      })
-      return all;
-    }
+    // function allNonServices(){
+    //   var all = [];
+    //   this.layers.forEach(function(layer){
+    //     all = all.concat(layer.hierarchy.leaves().filter(function(n){return n.fixed}))
+    //   })
+    //   return all;
+    // }
+    // function allServices(){
+    //   var all = [];
+    //   this.layers.forEach(function(layer){
+    //     all = all.concat(layer.hierarchy.leaves().filter(function(n){return !n.fixed}))
+    //   })
+    //   return all;
+    // }
     function allDependencies(){
       var all = [];
       this.layers.forEach(function(layer){
@@ -84,14 +85,17 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
     var stack = { hierarchies: [],
                 servicelinks: [],
                  allNodes,
-                 allServices,
-                 allNonServices,
+                //  allServices,
+                //  allNonServices,
                  allDependencies,
                  renderStack,
                  nodeClicked,
                  provision,
-                 buildServicelinks,
-                 tick
+                 //buildServicelinks,
+                 tick,
+                 selectionFunction: null,
+                 extensionFactory: null,
+                 interLayerLinkFactory: null
                }
     Object.assign(stack,stackConfig);
 
@@ -175,7 +179,7 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
       d3.forceSimulation()
         .nodes(nodes)
         //.force(serviceTransform.name+"charge", d3.forceManyBody())
-        .force(serviceTransform.name+"collide",d3.forceCollide(2*nodesize))
+        .force(serviceTransform.name+"collide",d3.forceCollide(1.5*nodesize))
         .force(serviceTransform.name+"X",d3.forceX(serviceTransform.cx).strength(0.001))
         .force(serviceTransform.name+"Y",d3.forceY(serviceTransform.cy).strength(0.001))
         .force(serviceTransform.name+"Y",d3.forceCenter(serviceTransform.cx,serviceTransform.cy))
@@ -274,6 +278,11 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
 
     function provision(nodes=[],dependencies=[],selected=(n)=> n.data.selected ? true: false,extension=()=>null,interLayerLinkFactory=()=>null){
 
+      var selectionFn = this.selectionFunction ? this.selectionFunction : selected;
+      var extensionFn = this.extensionFactory ? this.extensionFactory : extension;
+      var interLayerLinkFactoryFn = this.interLayerLinkFactory ? this.interLayerLinkFactory : interLayerLinkFactory;
+
+    
       var links = [];
       const nodeIndex = {};
 
@@ -284,7 +293,7 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
       
       var provisionedNodes;//Nodes selected or dependency of selected nodes
       
-      provisionedNodes= nodes.filter(selected);//all selected nodes
+      provisionedNodes= nodes.filter(selectionFn);//all selected nodes
       
       var linksHash = {};//The set of linsk
       var provisionedNodesHash = {};//The set of provisioned nodes
@@ -313,7 +322,7 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
                 if(!visited.indexOf(interface.target)>=0){
                   targets.push(interface.target)
                   visited.push(interface.target);
-                  var extensionNode = extension(t,provisionedNodesHash);
+                  var extensionNode = extensionFn(t,provisionedNodesHash);
                   if(extensionNode){
                       links.push({source: t, target: extensionNode})
                       visited.push(extensionNode.data.id);
@@ -335,91 +344,98 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
 
       var iterator = combo(linkedservicenodes,2);
       for (var item of iterator) {
-        var interlayerlink = interLayerLinkFactory(item[0],item[1]);
+        var interlayerlink = interLayerLinkFactoryFn(item[0],item[1]);
         if(interlayerlink)
           links.push(interlayerlink);      
       }
+      
+      linkedservicenodes.forEach(function(node){
+        if(!node.fixed){
+          delete node.fx;
+          delete node.fy;
+        }
+      })
 
        return { links: links, nodes: linkedservicenodes };
     }
 
-    function buildServicelinks(){
-      const consumerNodes = this.allNonServices();
-      const serviceNodes = this.allServices();
-      const dependencies = this.allDependencies();
+    // function buildServicelinks(){
+    //   const consumerNodes = this.allNonServices();
+    //   const serviceNodes = this.allServices();
+    //   const dependencies = this.allDependencies();
 
-      var corenetwork = { id: "CoreNetwork", fx: width/2,fy:height, fixed: true}
+    //   var corenetwork = { id: "CoreNetwork", fx: width/2,fy:height, fixed: true}
 
-      var serviceChildren = serviceNodes;
-      var services = serviceChildren.filter(function(n){
-        return n.data.selected;
-      })
-      var links = [];
-      var serviceids=[];
-      var linkednodeHash = {};
-      var linksHash = {};
-      consumerNodes.forEach(function(n){
+    //   var serviceChildren = serviceNodes;
+    //   var services = serviceChildren.filter(function(n){
+    //     return n.data.selected;
+    //   })
+    //   var links = [];
+    //   var serviceids=[];
+    //   var linkednodeHash = {};
+    //   var linksHash = {};
+    //   consumerNodes.forEach(function(n){
 
-        var anc = n.ancestors();
+    //     var anc = n.ancestors();
 
-        if(n.data.selected){
-          linkednodeHash[n.id]=n
-          services.forEach(function(s){
-              links.push({source: n,target: s})
-              serviceids.push(s.id);
-              linkednodeHash[s.id]=s
-            })
-        }
-      })
+    //     if(n.data.selected){
+    //       linkednodeHash[n.id]=n
+    //       services.forEach(function(s){
+    //           links.push({source: n,target: s})
+    //           serviceids.push(s.id);
+    //           linkednodeHash[s.id]=s
+    //         })
+    //     }
+    //   })
 
-      function visit(ids,visited){
-        if(ids.length==0)
-          return;
-        var targets= [];
-        dependencies.forEach(function(interface){
-          if(!linksHash[interface.source+interface.target]){
-            var index = ids.indexOf(interface.source);
-            if(index>=0){
-              var s = nodeIndex[interface.source];
-              var t = nodeIndex[interface.target]
-              if(s && t){
-                if(!s.fixed){
-                  delete s.fx;
-                  delete s.fy;
-                }
-                if(!t.fixed){
-                  delete t.fx;
-                  delete t.fy;
-                }
-                linkednodeHash[s.id] = s;
-                linkednodeHash[t.id] = t;
-                links.push({ source: s, target: t});
-                linksHash[s.id+t.id]='a';
-                if(!visited.indexOf(interface.target)>=0){
-                  targets.push(interface.target)
-                  visited.push(interface.target);
-                  if(t.data.name==='WAN Interconnect' && visited.indexOf("CoreNetwork")<0){
-                    links.push({source: t, target: corenetwork})
-                    visited.push("CoreNetwork");
-                  }
-                }
-              }
-            }
-          }
-        })
-        visit(targets,visited);
-      }
-      visit(serviceids,serviceids.slice());
+    //   function visit(ids,visited){
+    //     if(ids.length==0)
+    //       return;
+    //     var targets= [];
+    //     dependencies.forEach(function(interface){
+    //       if(!linksHash[interface.source+interface.target]){
+    //         var index = ids.indexOf(interface.source);
+    //         if(index>=0){
+    //           var s = nodeIndex[interface.source];
+    //           var t = nodeIndex[interface.target]
+    //           if(s && t){
+    //             if(!s.fixed){
+    //               delete s.fx;
+    //               delete s.fy;
+    //             }
+    //             if(!t.fixed){
+    //               delete t.fx;
+    //               delete t.fy;
+    //             }
+    //             linkednodeHash[s.id] = s;
+    //             linkednodeHash[t.id] = t;
+    //             links.push({ source: s, target: t});
+    //             linksHash[s.id+t.id]='a';
+    //             if(!visited.indexOf(interface.target)>=0){
+    //               targets.push(interface.target)
+    //               visited.push(interface.target);
+    //               if(t.data.name==='WAN Interconnect' && visited.indexOf("CoreNetwork")<0){
+    //                 links.push({source: t, target: corenetwork})
+    //                 visited.push("CoreNetwork");
+    //               }
+    //             }
+    //           }
+    //         }
+    //       }
+    //     })
+    //     visit(targets,visited);
+    //   }
+    //   visit(serviceids,serviceids.slice());
 
-      var linkedservicenodes = [];
-      Object.keys(linkednodeHash).forEach(function(key){
-        linkedservicenodes.push(linkednodeHash[key]);
-      })
-      linkedservicenodes.push(corenetwork)
+    //   var linkedservicenodes = [];
+    //   Object.keys(linkednodeHash).forEach(function(key){
+    //     linkedservicenodes.push(linkednodeHash[key]);
+    //   })
+    //   linkedservicenodes.push(corenetwork)
 
-      //console.log(links.length)
-      return { links: links, nodes: linkedservicenodes };
-    }
+    //   //console.log(links.length)
+    //   return { links: links, nodes: linkedservicenodes };
+    // }
 
     function nodeClicked(datanode,nd){
       var selected = !nd.classed("selected")
@@ -427,7 +443,9 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
       datanode.data.selected=selected;
 
       //Dependency Links
-      this.servicelinks = this.buildServicelinks();
+      this.servicelinks = this.provision(this.allNodes(),this.allDependencies(),this.selectionFunction,this.extensionFactory,this.interLayerLinkFactory)
+      
+      //this.servicelinks = this.buildServicelinks();
       user = stackContext.selectAll(".user").data(this.servicelinks.links, function(d) { return "user-"+d.source.id+d.target.id;  });
       user.exit().remove();
       user.enter().insert("line", ".user")
@@ -441,15 +459,12 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
 
         var w = width/2*this.stackNumber + width/4;
         var h = height/2;
-        //console.log("w:"+w + " h:"+h)
-
-
-
+      
         simulation
         .nodes(this.servicelinks.nodes)
         .force("user", d3.forceLink(this.servicelinks.links).id(function(d) {return d.id }))
         //.force("charge", d3.forceManyBody())
-        .force("collide",d3.forceCollide( function(d){ return 50 }))
+        .force("collide",d3.forceCollide( function(d){ return 2*nodesize }))
         .force("center", d3.forceCenter(w, h));
 
 
@@ -464,6 +479,24 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
       return stack ;
   }
 
+  function setSelectionFunction(f){
+    stacks.forEach(function(stack){
+      stack.selectionFunction =f;
+    })
+  }
+
+  function setExtensionFactory(f){
+    stacks.forEach(function(stack){
+      stack.extensionFactory =f;
+    })
+  }
+
+  function setInterLayerLinkFactory(f){
+    stacks.forEach(function(stack){
+      stack.interLayerLinkFactory =f;
+    })
+  }
+
 
   model.forEach(function(stackConfig){
     var stack = createStack(stackConfig);
@@ -471,7 +504,10 @@ function createVisualization(modelFactory,options= { width:100,height:100}) {
   })
   return {
       render,
-      stacks:  stacks
+      stacks:  stacks,
+      setSelectionFunction: setSelectionFunction,
+      setExtensionFactory: setExtensionFactory,
+      setInterLayerLinkFactory: setInterLayerLinkFactory      
     }// a stack
 }
 

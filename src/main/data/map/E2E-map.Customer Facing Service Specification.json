@@ -1,0 +1,172 @@
+[
+  {
+    "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+    "sourcename": "WAN",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+    "targetname": "Site Mobile Access Connectivity",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+    "sourcename": "LAN",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+    "targetname": "WAN",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+    "sourcename": "WAN",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+    "targetname": "Fixed Access",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{E6509D6C-B00B-49fa-9FC7-202885C38C8F}",
+    "sourcename": "WiFi",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+    "targetname": "LAN",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+    "sourcename": "SIP Connectivity",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+    "targetname": "LAN",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{AD56CCBD-15E4-4c1e-90D2-CFB4AAF6F581}",
+    "sourcename": "Mobile Service",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+    "targetname": "WAN Interconnect",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+    "sourcename": "Fixed Access",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+    "targetname": "WAN Interconnect",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+    "sourcename": "Site Mobile Access Connectivity",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+    "targetname": "WAN Interconnect",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+    "sourcename": "Presence",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+    "targetname": "UC Access",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+    "sourcename": "Presence",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+    "targetname": "SIP Connectivity",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
+    "sourcename": "Media Conferencing",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+    "targetname": "SIP Connectivity",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
+    "sourcename": "Media Conferencing",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+    "targetname": "UC Access",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+    "sourcename": "UC Access",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+    "targetname": "SIP Connectivity",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+    "sourcename": "Telephony",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+    "targetname": "UC Access",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+    "sourcename": "Sharing",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+    "targetname": "UC Access",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+    "sourcename": "Telephony",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+    "targetname": "SIP Connectivity",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  },
+  {
+    "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+    "sourcename": "Sharing",
+    "sourceclass": "Customer Facing Service Specification",
+    "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+    "targetname": "SIP Connectivity",
+    "targetclass": "Customer Facing Service Specification",
+    "value": "1",
+    "type": "Dependency"
+  }
+]

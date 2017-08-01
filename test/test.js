@@ -2,7 +2,7 @@ var assert = require('assert');
 
 var vis = require("../src/main/js/vis.js");
 
-var selected=(n)=> n.data.selected ? true: false;
+var selectionFunction=(n)=> n.data.selected ? true: false;
 
 var userCat1={ "id": "userCategory", name: "usersCategory", parent: "null"};
 var user1 = { "id": "user1", name: "aCustomer", parent: "userCategory"};
@@ -139,7 +139,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
     var provisioned4;
     before(function(){
       service1['selected']=true;
-      provisioned4 = stack.provision([service1Node, service2Node, service3Node],[service1_dependsupon_service2, service2_dependsupon_service3],selected,extensionFactory);
+      provisioned4 = stack.provision([service1Node, service2Node, service3Node],[service1_dependsupon_service2, service2_dependsupon_service3],selectionFunction,extensionFactory);
     })    
     it('Then extension nodes and links are generated', function() {
       assert.equal(contains(provisioned4.nodes,extensionId), true );
@@ -165,7 +165,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
     before(function(){
       user1['selected']=true;
       service1['selected']=true;
-      provisioned = stack.provision([user1Node,service1Node],[],selected,null,interLayerLinkFactory);
+      provisioned = stack.provision([user1Node,service1Node],[],selectionFunction,null,interLayerLinkFactory);
     })    
     it('Then links between the layers should be returned', function() {
       assert.equal(contains(provisioned.nodes,"service1"), true );

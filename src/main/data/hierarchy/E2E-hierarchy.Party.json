@@ -1,0 +1,34 @@
+[
+  {
+    "type": "Party",
+    "id": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}",
+    "name": "aParty",
+    "description": "",
+    "min": 1,
+    "parent": "null"
+  },
+  {
+    "type": "Supplier",
+    "id": "{081A1B02-96BF-4417-8D48-0F1D16166AF6}",
+    "name": "aSupplier",
+    "description": "",
+    "min": 2,
+    "parent": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}"
+  },
+  {
+    "type": "userId",
+    "id": "{9CBBB426-2EBF-4fad-A85F-93B0E5AEF3FD}",
+    "name": "steve@supplier.co.nz",
+    "description": "",
+    "min": 3,
+    "parent": "{081A1B02-96BF-4417-8D48-0F1D16166AF6}"
+  },
+  {
+    "type": "IPDevice",
+    "id": "{3955217A-79B2-4f47-8CB4-05237F37CDAA}",
+    "name": "Smart Phone",
+    "description": "",
+    "min": 4,
+    "parent": "{9CBBB426-2EBF-4fad-A85F-93B0E5AEF3FD}"
+  }
+]

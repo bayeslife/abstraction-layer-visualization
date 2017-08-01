@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>E2E</title>
+   <link href="../src/main/css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="e2e"></div>
+   <script src="../build/vis.js"></script>
+   <script src="../node_modules/d3/build/d3.js"></script>
+   
+
+  <script>
+   
+   var width = window.innerWidth;
+   var height = window.innerHeight;
+  
+   function extensionFactory(node,nodeHash){
+       if(node.data.id==='service3' && !nodeHash[extensionId]){
+         return extensionNode;
+       }
+     return null;
+   }
+  
+  function createModel(options = { nodesize: 10, width: 600, height: 600 }){
+  
+    const nodesize=options.nodesize;
+    const width = options.width;
+    const height = options.height;
+  
+    var customerHierarchy =[[
+    {
+      "type": "Customer",
+      "id": "{B8FC179E-6A08-4921-956C-3C5EC433F079}",
+      "name": "aCustomer",
+      "description": "",      
+      "parent": "null"
+    },
+    {
+      "type": "userId",
+      "id": "{CDBA6ED3-EBC5-46de-9942-882E39DCDFC8}",
+      "name": "jean",
+      "description": "",      
+      "parent": "{B8FC179E-6A08-4921-956C-3C5EC433F079}"
+    },
+    {
+      "type": "userId",
+      "id": "{EB9BDEAE-28D1-4a87-8013-9986B7AA0CE7}",
+      "name": "jim",
+      "description": "",      
+      "parent": "{B8FC179E-6A08-4921-956C-3C5EC433F079}"
+    },
+  ]
+  ,][0]
+    var partyHierarchy =[[
+    {
+      "type": "Party",
+      "id": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}",
+      "name": "aParty",
+      "description": "",      
+      "parent": "null"
+    },
+    {
+      "type": "userId",
+      "id": "{9CBBB426-2EBF-4fad-A85F-93B0E5AEF3FD}",
+      "name": "steve",
+      "description": "",      
+      "parent": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}"
+    },
+  ]
+  ,][0]
+   
+    var customerInterrelationships =[[
+    {
+      "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+      "sourcename": "WAN",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+      "targetname": "Mobile Access",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+      "sourcename": "LAN",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+      "targetname": "WAN",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+      "sourcename": "WAN",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+      "targetname": "Fixed Access",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{E6509D6C-B00B-49fa-9FC7-202885C38C8F}",
+      "sourcename": "WiFi",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+      "targetname": "LAN",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "sourcename": "SIP",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+      "targetname": "LAN",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{AD56CCBD-15E4-4c1e-90D2-CFB4AAF6F581}",
+      "sourcename": "Mobile",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+      "targetname": "WAN",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+      "sourcename": "Fixed Access",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+      "targetname": "WAN Interconnect",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+      "sourcename": "Mobile Access",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+      "targetname": "WAN",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+      "sourcename": "Presence",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+      "targetname": "UC Access",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+      "sourcename": "Presence",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "targetname": "SIP",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
+      "sourcename": "Media Conferencing",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "targetname": "SIP",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
+      "sourcename": "Media Conferencing",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+      "targetname": "UC Access",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+      "sourcename": "UC Access",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "targetname": "SIP",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+      "sourcename": "Telephony",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+      "targetname": "UC Access",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+      "sourcename": "Sharing",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+      "targetname": "UC Access",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+      "sourcename": "Telephony",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "targetname": "SIP",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    },
+    {
+      "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+      "sourcename": "Sharing",
+      "sourceclass": "Customer Facing Service Specification",
+      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "targetname": "SIP",
+      "targetclass": "Customer Facing Service Specification",
+      "value": "1",
+      "type": "Dependency"
+    }
+  ]
+  ,][0]
+    var serviceData =[[
+    {
+      "type": "Customer Facing Service Catalogue",
+      "id": "{CA66B085-4A11-486e-B043-2525BAC3F00C}",
+      "name": "Enterprise Service Catalogue",
+      "description": "A catalogue of customer facing services provided by the entire organization.\r\n",
+      "min": 0,
+      "parent": "null",
+      "level": "3",
+      "project": "ServiceCatalogue"
+    },
+    {
+      "type": "Customer Facing Service Specification Type",
+      "id": "{3DDA929B-1DC8-4fe5-B91F-1A8600465797}",
+      "name": "User Access",
+      "description": "",
+      "min": 1,
+      "parent": "{CA66B085-4A11-486e-B043-2525BAC3F00C}"
+    },
+
+    {
+      "type": "Customer Facing Service Specification Type",
+      "id": "{A62BD9D4-E2C9-42a6-A402-4C82F44EB72A}",
+      "name": "Site Connectivity",
+      "description": "",
+      "min": 1,
+      "parent": "{CA66B085-4A11-486e-B043-2525BAC3F00C}"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+      "name": "WAN",
+      "description": "IP connectivity from customer site to other sites via routing and access services.",
+      "min": 2,
+      "parent": "{A62BD9D4-E2C9-42a6-A402-4C82F44EB72A}",
+      "pageId": "63918750",
+      "label": "CustomerFacingServiceWAN"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+      "name": "Fixed Access",
+      "description": "Connectivity from a site LAN to a central routing function.\r\n\r\nIncludes IAD, in the case of PD25 the options are 1Gbps or 10Bgps port",
+      "min": 2,
+      "parent": "{A62BD9D4-E2C9-42a6-A402-4C82F44EB72A}",
+      "pageId": "63918717",
+      "label": "CustomerFacingServiceFixedAccess"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+      "name": "SIP",
+      "description": "Providing  SIP interconnect/trunking functions from a customers site.",
+      "min": 2,
+      "parent": "{A62BD9D4-E2C9-42a6-A402-4C82F44EB72A}",
+      "pageId": "63918765",
+      "label": "CustomerFacingServiceSIPConnectivity"
+    },
+    {
+      "type": "Customer Facing Service Specification Type",
+      "id": "{966988BE-2DF9-45ea-BDFC-71EDAF21DDA2}",
+      "name": "Enterprise Connectivity",
+      "description": "",
+      "min": 1,
+      "parent": "{CA66B085-4A11-486e-B043-2525BAC3F00C}"
+    },
+
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+      "name": "Interconnect",
+      "description": "Routing of IP connectivity between different networks\r\n\r\nPIP VRF Can be GNET or LNO",
+      "min": 2,
+      "parent": "{966988BE-2DF9-45ea-BDFC-71EDAF21DDA2}",
+      "pageId": "63918760",
+      "label": "CustomerFacingServiceWANCore"
+    },
+    {
+      "type": "Customer Facing Service Specification Type",
+      "id": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "name": "User Connectivity",
+      "description": "",
+      "min": 1,
+      "parent": "{CA66B085-4A11-486e-B043-2525BAC3F00C}"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{E6509D6C-B00B-49fa-9FC7-202885C38C8F}",
+      "name": "WiFi",
+      "description": "Services to provide access to a sites network over the WIFI protocol.",
+      "min": 2,
+      "parent": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "pageId": "63918802",
+      "label": "CustomerFacingServiceWiFi"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+      "name": "Telephony",
+      "description": "Connecting multiple parties in a voice conversation.\r\n\r\nThere is a MSISDN (phone number) assigned to this service.",
+      "min": 2,
+      "parent": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "pageId": "63918735",
+      "label": "CustomerFacingServiceTelephony"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+      "name": "UC Access",
+      "description": "Base Unified Communications Account service which gives access to the unified communications platform and self service portal.",
+      "min": 2,
+      "parent": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "pageId": "64858125",
+      "label": "CustomerFacingServiceUCAccess"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+      "name": "Sharing",
+      "description": "A service that allows remote access and remote collaboration on a parties device.",
+      "min": 2,
+      "parent": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "pageId": "63918737",
+      "label": "CustomerFacingServiceSharing"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+      "name": "Presence",
+      "description": " A service that provides a status indicator that conveys ability and willingness of a potential communication partner.",
+      "min": 2,
+      "parent": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "pageId": "63918739",
+      "label": "CustomerFacingServicePresence"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+      "name": "LAN",
+      "description": "IP connectivity among customer equipment at a site.\r\n\r\nService includes the ability to manage the configuration of LAN switches.\r\n\r\nSFP's will be required for each order.\r\n",
+      "min": 2,
+      "parent": "{D288C560-FEB3-4064-9049-CCBBB11BAD8B}",
+      "pageId": "63918796",
+      "label": "CustomerFacingServiceLAN"
+    },
+    {
+      "type": "Customer Facing Service Specification Type",
+      "id": "{38169920-DF55-4c3d-8F33-18F47BA58F28}",
+      "name": "Mobile Telephony",
+      "description": "",
+      "min": 1,
+      "parent": "{CA66B085-4A11-486e-B043-2525BAC3F00C}"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{AD56CCBD-15E4-4c1e-90D2-CFB4AAF6F581}",
+      "name": "Mobile Service",
+      "description": "Service providing access to wireless mobile telecommunications.",
+      "min": 2,
+      "parent": "{38169920-DF55-4c3d-8F33-18F47BA58F28}",
+      "mobiledata_status": "enabled,blocked,suspended",
+      "pageId": "63918781",
+      "label": "CustomerFacingServiceMobileService"
+    },
+    {
+      "type": "Customer Facing Service Specification",
+      "id": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+      "name": "Mobile Access",
+      "description": "IP Connectivity from a mobile device to a centralized routing function.  ",
+      "min": 2,
+      "parent": "{38169920-DF55-4c3d-8F33-18F47BA58F28}",
+      "status": "enabled,blocked,out of credit",
+      "pageId": "63918756",
+      "label": "CustomerFacingServiceMobileAccess"
+    }
+  ]
+  ,][0]
+  
+    var partyInterrelationships =JSON.parse(JSON.stringify(customerInterrelationships));
+    var customerServiceData = serviceData;
+    var partyServiceData =JSON.parse(JSON.stringify(serviceData));
+    partyServiceData.forEach(function(d){
+      d.id = 'p'+d.id;
+      if(d.parent!=="null")
+        d.parent = 'p'+d.parent;
+    })
+    partyInterrelationships.forEach(function(r){
+      r.source = 'p'+r.source;
+      r.target = 'p'+r.target;
+    })
+  
+    var userCustomerTransform = { name: "userCustomer",cx: 8*nodesize, cy:8*nodesize,anchor: "middle", style: "serviceUser", fixed: true };
+    var userPartyTransform  = {name: "userParty", cx: width-8*nodesize, cy:8*nodesize,anchor:"middle", style: "serviceUser" , fixed: true}
+    var customerServiceTransform = {name: "customerService",cx: 8*nodesize, cy:height-8*nodesize,anchor: "middle",style: "service", fixed: false}
+    var partyServiceTransform = {name: "partyService",cx: width-8*nodesize, cy:height-8*nodesize,anchor: "middle",style: "service" , fixed: false}
+  
+    var answer =
+    [{
+      stackNumber: 0,
+      stackName:  "customer",
+      layers: [ { name: "user",
+          data: customerHierarchy,
+          transform: userCustomerTransform
+        },{
+          name: "service",
+          data: customerServiceData,
+          dependencies: customerInterrelationships,
+          transform: customerServiceTransform
+        }
+      ]
+    },{
+      stackNumber: 1,
+      stackName: "party",
+      layers: [
+      { name: "user",
+        data: partyHierarchy,
+        transform: userPartyTransform
+      },{
+        name: "service",
+        data: partyServiceData,
+        dependencies: partyInterrelationships,
+        transform: partyServiceTransform
+      }]
+    }]
+  
+    return answer;
+  }
+  
+  var extensionId = "networkcore"
+  var extension = { "id": extensionId };
+  var extensionNode = { data: extension, fx: width/2, fy: height, fixed: true }
+  function extensionFactory(node,nodeHash){
+      if(node.data.name==='Interconnect' && !nodeHash[extensionId]){
+        return extensionNode;
+      }
+    return null;
+  }
+  
+  function interLayerLinkFactory(node1,node2){
+      if(node1.data.type=== node2.data.type)
+        return null;
+  
+     if(node1.data.type==='userId' && node2.data.name==='Telephony')
+      return { source: node1 , target: node2 }
+     else if(node2.data.type==='userId' && node1.data.name==='Telephony')
+       return { source: node2 , target: node1 }
+  
+      return null;
+  
+  }
+  
+  function selectionFunction(n){
+    return n.data.selected? true: false;
+  }
+  
+  var visualization = vis.createVisualization(createModel,{
+    nodesize: 12,
+    width: width,
+    height: height
+  });
+  visualization.setSelectionFunction(selectionFunction);
+  visualization.setExtensionFactory(extensionFactory);
+  visualization.setInterLayerLinkFactory(interLayerLinkFactory);
+  visualization.render();
+  </script>
+
+</div>
+
+</body>
+
+</html>

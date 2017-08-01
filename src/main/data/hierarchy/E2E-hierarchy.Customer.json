@@ -1,0 +1,51 @@
+[
+  {
+    "type": "Customer",
+    "id": "{B8FC179E-6A08-4921-956C-3C5EC433F079}",
+    "name": "aCustomer",
+    "description": "",
+    "min": 1,
+    "parent": "null"
+  },
+  {
+    "type": "Business Unit",
+    "id": "{9909F2AE-4709-4dae-8BD2-3217DB1A2505}",
+    "name": "Consumer",
+    "description": "",
+    "min": 2,
+    "parent": "{B8FC179E-6A08-4921-956C-3C5EC433F079}",
+    "aka": "CBU"
+  },
+  {
+    "type": "Group",
+    "id": "{28354BEF-7549-47db-B4D3-2BB7FB0D4276}",
+    "name": "Operations",
+    "description": "",
+    "min": 3,
+    "parent": "{9909F2AE-4709-4dae-8BD2-3217DB1A2505}"
+  },
+  {
+    "type": "userId",
+    "id": "{CDBA6ED3-EBC5-46de-9942-882E39DCDFC8}",
+    "name": "jean.jones@customer.co.nz",
+    "description": "",
+    "min": 4,
+    "parent": "{28354BEF-7549-47db-B4D3-2BB7FB0D4276}"
+  },
+  {
+    "type": "userId",
+    "id": "{EB9BDEAE-28D1-4a87-8013-9986B7AA0CE7}",
+    "name": "jim.smith@customer.co.nz",
+    "description": "",
+    "min": 4,
+    "parent": "{28354BEF-7549-47db-B4D3-2BB7FB0D4276}"
+  },
+  {
+    "type": "userId",
+    "id": "{8C3BF873-9029-4d67-8332-EC12E77A5B1B}",
+    "name": "meetingroom1@customer.co.nz",
+    "description": "",
+    "min": 4,
+    "parent": "{28354BEF-7549-47db-B4D3-2BB7FB0D4276}"
+  }
+]
