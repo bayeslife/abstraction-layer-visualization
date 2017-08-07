@@ -4,18 +4,20 @@ var vis = require("../src/main/js/vis.js");
 
 var selectionFunction=(n)=> n.data.selected ? true: false;
 
+var userLayerType ="User";
 var userCat1={ "id": "userCategory", name: "usersCategory", parent: "null"};
 var user1 = { "id": "user1", name: "aCustomer", parent: "userCategory"};
-var user1Node = { data: user1 };
-var usersLayer = { name: "user", data:  [userCat1,user1], transform: { name: "userCustomer",cx: 1, cy:1,anchor: "middle", style: "user", fixed: true } };
+var user1Node = { data: user1, layerType: userLayerType };
+var usersLayer = { name: "user", type:userLayerType, components:  [userCat1,user1], transform: { name: "userCustomer",cx: 1, cy:1,anchor: "middle", style: "user", fixed: true } };
 
+var serviceLayerType ="Service";
 var servicecat1={ "id": "servicecat1", name: "aServiceCat", parent: "null"};
 var service1 = { "id": "service1", name: "aService1", parent: "servicecat1"};
-var service1Node = { data: service1 };
+var service1Node = { data: service1, layerType: serviceLayerType };
 var service2 = { "id": "service2", name: "aService2", parent: "servicecat1"};  
-var service2Node = { data: service2 };
+var service2Node = { data: service2 , layerType: serviceLayerType};
 var service3 = { "id": "service3", name: "aService3", parent: "servicecat1"};  
-var service3Node = { data: service3 };
+var service3Node = { data: service3 , layerType: serviceLayerType};
 
 var extensionId = "extension";
 var extension = { "id": extensionId };  
@@ -32,7 +34,7 @@ var service2_dependsupon_service1 = { "source": "service2", "target": "service1"
 var service2_dependsupon_service3 = { "source": "service2", "target": "service3", "type": "Dependency" };
 var service1_dependsupon_service3 = { "source": "service1", "target": "service3", "type": "Dependency" };
 
-var servicesLayer ={ name: "service", data:  [servicecat1,service1 ,service2], transform: { name: "serviceCustomer",cx: 1, cy:1,anchor: "middle", style: "service", fixed: false },
+var servicesLayer ={ name: "service", type:"Service",components:  [servicecat1,service1 ,service2], transform: { name: "serviceCustomer",cx: 1, cy:1,anchor: "middle", style: "service", fixed: false },
                     dependencies: [ service1_dependsupon_service2 ]}
 
 
@@ -44,15 +46,23 @@ function interLayerLinkFactory(node,node2){
     }  
 }
 
-let mockModelFactory = function(){
+function crossStackLinkFactory(node,node2){    
+      return {source: node, target:node2};
+}
+
+let solutionFactory = function(){
   return [{
     stackNumber: 0,
-    stackName: "Test",
+    stackName: "Stack0",
+    layers: [ usersLayer, servicesLayer ],
+  },{
+    stackNumber: 1,
+    stackName: "Stack1",
     layers: [ usersLayer, servicesLayer ],
   }];
 }
 
-const visualization = vis.createVisualization(mockModelFactory,{width:100,height:100});
+const visualization = vis.createVisualization(solutionFactory,{width:100,height:100});
 
 //Does the list of hierarchyNodes contain a node with a specific id
 function contains(ls = [], id){
@@ -65,12 +75,35 @@ function contains(ls = [], id){
 }
 
 describe('Given a stack with 2 layers (user and service)', function() {  
-  const stack = visualization.stacks[0];
+  visualization.setSelectionFunction(selectionFunction);  
+
+  const stack = visualization.getStacks()[0];
+  const stack1 = visualization.getStacks()[1];
 
   beforeEach(function(){
     user1['selected']=false;
     service1['selected']=false;
   })
+
+  describe('When the visualizaiton is created', function() {                
+      var layers,layer,components,componentNodes,componentNode;
+      before(function(){  
+        layers = stack.getLayers();             
+        layer = layers[0];
+        components = layer.getComponents();
+        componentNodes = layer.getComponentNodes();
+        componentNode = componentNodes[0];
+      })    
+      it('Then there are 2 layers', function() {      
+          assert.equal(layers.length,2 );
+      });
+      it('Then the first layer has 2 components', function() {      
+        assert.equal(componentNodes.length,1 );
+      });
+      it('Then a component has its type denormalized from the layer type', function() {              
+        assert.equal(componentNode.layerType,layer.type);
+      });
+    });
 
   describe('When we request provisioning and there is user1 node selected ', function() {    
     var provisioned;
@@ -172,4 +205,20 @@ describe('Given a stack with 2 layers (user and service)', function() {
       assert.equal(provisioned.links.length, 1 );
     })
   })
+
+  describe('When cross stack link function is defined', function() {  
+    var provisioned,provisioned1;
+    before(function(){
+      user1['selected']=true;      
+      //provisioned = stack.provision([user1Node],[],selectionFunction,null,null);
+      //provisioned1 = stack1.provision([user1Node],[],selectionFunction,null,null);
+      //emergentlinks = visualization.emerge(crossStackLinkFactory);
+      stack.nodeClicked(user1Node);
+      stack1.nodeClicked(user1Node);
+    })    
+    it('Then cross stack links emerge ', function() {      
+      assert.equal(1,visualization.emergentlinks.length );
+    })
+  })
+
 })

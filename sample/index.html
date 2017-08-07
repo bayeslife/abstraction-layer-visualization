@@ -29,7 +29,7 @@
     const width = options.width;
     const height = options.height;
   
-    var customerHierarchy =[[
+    var customerHierarchy =[
     {
       "type": "Customer",
       "id": "{B8FC179E-6A08-4921-956C-3C5EC433F079}",
@@ -52,199 +52,197 @@
       "parent": "{B8FC179E-6A08-4921-956C-3C5EC433F079}"
     },
   ]
-  ,][0]
-    var partyHierarchy =[[
-    {
-      "type": "Party",
-      "id": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}",
-      "name": "aParty",
-      "description": "",      
-      "parent": "null"
-    },
-    {
-      "type": "userId",
-      "id": "{9CBBB426-2EBF-4fad-A85F-93B0E5AEF3FD}",
-      "name": "steve",
-      "description": "",      
-      "parent": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}"
-    },
-  ]
-  ,][0]
+
+    var partyHierarchy =[
+      {
+        "type": "Party",
+        "id": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}",
+        "name": "aParty",
+        "description": "",      
+        "parent": "null"
+      },
+      {
+        "type": "userId",
+        "id": "{9CBBB426-2EBF-4fad-A85F-93B0E5AEF3FD}",
+        "name": "steve",
+        "description": "",      
+        "parent": "{64B4C39A-6D87-4fe7-91A1-2C9733051B37}"
+      }
+    ]
    
-    var customerInterrelationships =[[
-    {
-      "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
-      "sourcename": "WAN",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
-      "targetname": "Mobile Access",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
-      "sourcename": "LAN",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
-      "targetname": "WAN",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
-      "sourcename": "WAN",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
-      "targetname": "Fixed Access",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{E6509D6C-B00B-49fa-9FC7-202885C38C8F}",
-      "sourcename": "WiFi",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
-      "targetname": "LAN",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
-      "sourcename": "SIP",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
-      "targetname": "LAN",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{AD56CCBD-15E4-4c1e-90D2-CFB4AAF6F581}",
-      "sourcename": "Mobile",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
-      "targetname": "WAN",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
-      "sourcename": "Fixed Access",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
-      "targetname": "WAN Interconnect",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
-      "sourcename": "Mobile Access",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
-      "targetname": "WAN",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
-      "sourcename": "Presence",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
-      "targetname": "UC Access",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
-      "sourcename": "Presence",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
-      "targetname": "SIP",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
-      "sourcename": "Media Conferencing",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
-      "targetname": "SIP",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
-      "sourcename": "Media Conferencing",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
-      "targetname": "UC Access",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
-      "sourcename": "UC Access",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
-      "targetname": "SIP",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
-      "sourcename": "Telephony",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
-      "targetname": "UC Access",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
-      "sourcename": "Sharing",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
-      "targetname": "UC Access",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
-      "sourcename": "Telephony",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
-      "targetname": "SIP",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    },
-    {
-      "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
-      "sourcename": "Sharing",
-      "sourceclass": "Customer Facing Service Specification",
-      "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
-      "targetname": "SIP",
-      "targetclass": "Customer Facing Service Specification",
-      "value": "1",
-      "type": "Dependency"
-    }
-  ]
-  ,][0]
-    var serviceData =[[
+    var customerInterrelationships =[
+      {
+        "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+        "sourcename": "WAN",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+        "targetname": "Mobile Access",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+        "sourcename": "LAN",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+        "targetname": "WAN",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{27DF6C8A-D97E-4724-A902-F4C94A239308}",
+        "sourcename": "WAN",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+        "targetname": "Fixed Access",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{E6509D6C-B00B-49fa-9FC7-202885C38C8F}",
+        "sourcename": "WiFi",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+        "targetname": "LAN",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+        "sourcename": "SIP",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{7DD6D90F-6732-4709-88A3-BCAD6E375ACA}",
+        "targetname": "LAN",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{AD56CCBD-15E4-4c1e-90D2-CFB4AAF6F581}",
+        "sourcename": "Mobile",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+        "targetname": "WAN",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{59F49E48-5890-49a5-A9B9-046A1E2724C3}",
+        "sourcename": "Fixed Access",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+        "targetname": "WAN Interconnect",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{D9421060-DFA5-4675-B7F9-21A0CFDB3109}",
+        "sourcename": "Mobile Access",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{CF4CAD09-E060-474d-8B00-B703F9950A3B}",
+        "targetname": "WAN",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+        "sourcename": "Presence",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+        "targetname": "UC Access",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{D140E603-2292-460c-A3AD-28C618B3CA2A}",
+        "sourcename": "Presence",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+        "targetname": "SIP",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
+        "sourcename": "Media Conferencing",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+        "targetname": "SIP",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{D89F8DCE-9B42-42c5-B17F-3A9933CAEF41}",
+        "sourcename": "Media Conferencing",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+        "targetname": "UC Access",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+        "sourcename": "UC Access",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+        "targetname": "SIP",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+        "sourcename": "Telephony",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+        "targetname": "UC Access",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+        "sourcename": "Sharing",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{C0775155-E26C-484e-A1CD-87118C3E8718}",
+        "targetname": "UC Access",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{C104EA20-0BBB-4247-9367-3B75C6A13766}",
+        "sourcename": "Telephony",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+        "targetname": "SIP",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      },
+      {
+        "source": "{436F66D2-17F7-4b79-8FDC-5F27323299DC}",
+        "sourcename": "Sharing",
+        "sourceclass": "Customer Facing Service Specification",
+        "target": "{DC6945C3-C936-425d-9F31-DAEC8B66E27D}",
+        "targetname": "SIP",
+        "targetclass": "Customer Facing Service Specification",
+        "value": "1",
+        "type": "Dependency"
+      }
+    ]
+    var serviceData =[
     {
       "type": "Customer Facing Service Catalogue",
       "id": "{CA66B085-4A11-486e-B043-2525BAC3F00C}",
@@ -420,9 +418,8 @@
       "label": "CustomerFacingServiceMobileAccess"
     }
   ]
-  ,][0]
   
-    var partyInterrelationships =JSON.parse(JSON.stringify(customerInterrelationships));
+    var partyInterrelationships =JSON.parse(JSON.stringify(customerInterrelationships));//data copy
     var customerServiceData = serviceData;
     var partyServiceData =JSON.parse(JSON.stringify(serviceData));
     partyServiceData.forEach(function(d){
@@ -444,12 +441,13 @@
     [{
       stackNumber: 0,
       stackName:  "customer",
-      layers: [ { name: "user",
-          data: customerHierarchy,
+      layers: [ 
+        { name: "user",
+          components: customerHierarchy,
           transform: userCustomerTransform
         },{
           name: "service",
-          data: customerServiceData,
+          components: customerServiceData,
           dependencies: customerInterrelationships,
           transform: customerServiceTransform
         }
@@ -459,11 +457,11 @@
       stackName: "party",
       layers: [
       { name: "user",
-        data: partyHierarchy,
+        components: partyHierarchy,
         transform: userPartyTransform
       },{
         name: "service",
-        data: partyServiceData,
+        components: partyServiceData,
         dependencies: partyInterrelationships,
         transform: partyServiceTransform
       }]
