@@ -8,9 +8,9 @@ Layer: A Layer is a group of Components at the same abstraction layer.  A group 
 
 Stack:  A Stack represents a set of abstraction Layers that need to interface together to produce one part of a multiple part solution.
 
-System: A System is a set of stacks that together provide a solution to multiple users.
+Solution: A System is a set of stacks that together provide a solution to multiple users.
 
-Components dependencies:  In a layer Components may have dependencies on other Components.
+Components dependencies:  In a layer Components may have dependencies on other Components.  
 
 InterLayer dependencies : Components across layers may have dependency relationships
 

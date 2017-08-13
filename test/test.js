@@ -4,6 +4,8 @@ var vis = require("../src/main/js/vis.js");
 
 var selectionFunction=(n)=> n.data.selected ? true: false;
 
+var serviceConstraint={ "id": "requires"};
+
 var userLayerType ="User";
 var userCat1={ "id": "userCategory", name: "usersCategory", parent: "null"};
 var user1 = { "id": "user1", name: "aCustomer", parent: "userCategory"};
@@ -37,13 +39,38 @@ var service1_dependsupon_service3 = { "source": "service1", "target": "service3"
 var servicesLayer ={ name: "service", type:"Service",components:  [servicecat1,service1 ,service2], transform: { name: "serviceCustomer",cx: 1, cy:1,anchor: "middle", style: "service", fixed: false },
                     dependencies: [ service1_dependsupon_service2 ]}
 
+var constraints = [
+  {
+    source: serviceConstraint.id,
+    target: user1.id
+  },
+  {
+    source: serviceConstraint.id,
+    target: service1.id
+  }
+]
 
-function interLayerLinkFactory(node,node2){
-    if(node.data.parent === node2.data.parent)
+// function interLayerLinkFactory(constraints,node,node2){
+//     if(node.data.parent === node2.data.parent)
+//       return null;
+//     else {
+//       return {source: node, target:node2};
+//     }  
+// }
+
+function interLayerLinkFactory(constraint,node1,node2){
+    if(node1.data.type=== node2.data.type)
       return null;
-    else {
-      return {source: node, target:node2};
-    }  
+
+    constraints.forEach(function(constraint){
+  
+      if(node1.data.id === constraint.source && node2.data.id===constraint.target){
+          return { source: node1 , target: node2 }
+      }else if(node2.data.id === constraint.source && node1.data.id===constraint.target){
+        return { source: node2 , target: node1 }
+      }
+  })
+  return null;
 }
 
 function crossStackLinkFactory(node,node2){    
@@ -51,15 +78,18 @@ function crossStackLinkFactory(node,node2){
 }
 
 let solutionFactory = function(){
-  return [{
-    stackNumber: 0,
-    stackName: "Stack0",
-    layers: [ usersLayer, servicesLayer ],
-  },{
-    stackNumber: 1,
-    stackName: "Stack1",
-    layers: [ usersLayer, servicesLayer ],
-  }];
+  return {
+    constraints,
+    stacks: [{
+      stackNumber: 0,
+      stackName: "Stack0",
+      layers: [ usersLayer, servicesLayer ],
+    },{
+      stackNumber: 1,
+      stackName: "Stack1",
+      layers: [ usersLayer, servicesLayer ],
+    }]
+  };
 }
 
 const visualization = vis.createVisualization(solutionFactory,{width:100,height:100});
@@ -101,7 +131,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
         assert.equal(componentNodes.length,1 );
       });
       it('Then a component has its type denormalized from the layer type', function() {              
-        assert.equal(componentNode.layerType,layer.type);
+        assert.equal(componentNode.data.layerType,layer.type);
       });
     });
 
@@ -193,7 +223,20 @@ describe('Given a stack with 2 layers (user and service)', function() {
     })
   })
 
-   describe('When a inter layer link factory is defined and there are nodes from different layers', function() {  
+  //  describe('When a inter layer link factory is defined and there are nodes from different layers', function() {  
+  //   var provisioned;
+  //   before(function(){
+  //     user1['selected']=true;
+  //     service1['selected']=true;
+  //     provisioned = stack.provision([user1Node,service1Node],[],selectionFunction,null,interLayerLinkFactory);
+  //   })    
+  //   it('Then links between the layers should be returned', function() {
+  //     assert.equal(contains(provisioned.nodes,"service1"), true );
+  //     assert.equal(provisioned.links.length, 1 );
+  //   })
+  // })
+
+  describe.only('When a inter layer constraints link factory is defined and there are nodes from different layers', function() {  
     var provisioned;
     before(function(){
       user1['selected']=true;

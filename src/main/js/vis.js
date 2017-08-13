@@ -15,13 +15,28 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
 
   var stacks = [];  
 
+  var emergentContext;
+
+  const nodeIndex = {};//a cross stack index of all nodes
+
   const model = modelFactory({nodesize: nodesize, width: width, height: height});
 
-  function emerge(crossStackLinkFactory=()=>null){
+  const constraints = denormalizeConstraints(model.constraints);
+
+  function denormalizeConstraints(constraints=[]){
+    var constraintMap = {};
+    constraints.forEach(function(constraint){
+      cons
+    })
+  }
+
+  function emerge(crossStackLinkFactoryFn=()=>null){
+    var crossStackLinkFactory = this.crossStackLinkFactory ? this.crossStackLinkFactory : crossStackLinkFactoryFn;
+
     var links = [];
     Object.keys(this.layerTypeHash).forEach(function(layerType){
       var layerTypeFilter = function(n){
-        return n.layerType === layerType
+        return n.data.layerType === layerType
       }
 
       stacks.forEach(function(stack,index){
@@ -36,13 +51,14 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       })
     })
     return links;
-    
   };
 
   var render = function(){
     svg = d3.select("#e2e").append("svg")
       .attr("width", chartWidth)
       .attr("height", height);
+
+    emergentContext = svg.append("g").attr("nm","emergent");  
 
       svg.append("marker").attr("id","triangle")
         .attr("refX",12)
@@ -57,21 +73,29 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           stack.renderStack(svg);
         })
   }
-  var refresh = function(){
+  var provisionTick = function(){
     stacks.forEach(function(stack){
-      stack.refresh();
-    })
+      stack.provisionTick();
+    })    
+    var emergentlinkSelection = emergentContext.selectAll(".emergent").data(this.emergentlinks, function(d) { return "el-"+d.source.id+d.target.id;  });
+      emergentlinkSelection.exit().remove();
+      emergentlinkSelection.enter().insert("line", ".emergent")
+        .attr("id", function(d){
+          return "el-"+d.source.id+d.target.id;})
+        .attr("class", "emergent")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return (d.source.y); })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });  
   }
-  var createStack = function(stackConfig){
-    var nodeIndex={};
+  var createStack = function(stackConfig){    
     var renderStack = function(svg){
-
 
       stackContext = svg.append("g").attr("nm",this.stackName);
 
       this.layers.forEach(function(layer){
         layer.context = stackContext.append("g").attr("nm",layer.name +"Context");
-        layer.model.renderServices(layer.context);
+        layer.renderServices(layer.context);
       })
     }
     function hashLayerTypes(hash){      
@@ -93,21 +117,21 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           all = all.concat(layer.dependencies)
       })
       return all;
-    }
+    }    
     var stack = { 
       hierarchies: [],
-      servicelinks: [],
-      provisionedNodes: [],
+      provisioned: { links: [], nodes: [] },
+      selectedNodes: [],
       getLayers: function(){return this.layers},
       hashLayerTypes,
       allNodes,      
       allDependencies,
-      getProvisionedNodes: function(){return this.provisionedNodes},
+      getProvisionedNodes: function(){return this.provisioned.nodes},
       renderStack,
+      provisionTick,
       nodeClicked,
       provision,
-      //buildServicelinks,
-      tick,
+      //buildprovisioned,      
       selectionFunction: null,
       extensionFactory: null,
       interLayerLinkFactory: null
@@ -115,26 +139,26 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
     Object.assign(stack,stackConfig);
     var simulation,simulation2=null;
 
-    var createServices = function(layer) {
-        var serviceTransform = layer.transform;
-        var serviceHierarchy = layer.hierarchy = d3.stratify()
+    var createLayer = function(layerConfig) {
+        var serviceTransform = layerConfig.transform;
+        var serviceHierarchy = layerConfig.hierarchy = d3.stratify()
         .id(function(service){ return service.id;})
         .parentId(function(service){ return service.parent === "null" ? null : service.parent; })
-        (layer.components);
+        (layerConfig.components);
 
         var nodes = serviceHierarchy.leaves();
         var links = serviceHierarchy.links();
-        var interlinks = layer.dependencies ? interlinks(serviceHierarchy,layer.dependencies) : null;
+        var interlinks = layerConfig.dependencies ? interlinks(serviceHierarchy,layerConfig.dependencies) : null;
 
         serviceHierarchy.each(function(n){nodeIndex[n.id]=n;})
         serviceHierarchy.each(function(n){n.fixed = serviceTransform.fixed})
         serviceHierarchy.each(function(n){
-          n.layerType = layer.type})
-
-        var renderServices = function(serviceContext){
-
+          n.data.layerType = layerConfig.type})
+                
+        var renderServices = function(serviceCtxt){           
+            this.serviceContext = serviceCtxt;
             // Update the nodes…
-            var node = serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
+            var node = this.serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
             node.exit().remove();
             var nodeg = node.enter().append("g")
                 .attr("transform", function(d) {
@@ -145,16 +169,16 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
               .attr("cx", function(d) { return 0; })
               .attr("cy", function(d) { return 0; })
               .attr("r", function(d) { return nodesize; })
-              // .call(d3.drag()
-              //           .on("start", dragstarted)
-              //           .on("drag", dragged)
-              //           .on("end", dragended))
-              .on("click",serviceClicked)
+              .call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended))
+              .on("click",componentClicked)
               .classed(serviceTransform.style,true)
             nodeg.append("text").text(function(d){ return d.data.name;}).attr("text-anchor",serviceTransform.anchor)
 
             if(interlinks){
-              var interface = serviceContext.selectAll(".interface").data(interlinks, function(d) { return "interface-"+d.source.id+d.target.id;});
+              var interface = this.serviceContext.selectAll(".interface").data(interlinks, function(d) { return "interface-"+d.source.id+d.target.id;});
               interface.exit().remove();
               interface.enter().insert("line", ".node")
                   .attr("id", function(d){ return "interface-"+d.source.id+d.target.id;})
@@ -166,69 +190,71 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
                   .attr("style","marker-end: url(#triangle)")
             }
 
-        var freeze = function() {
-          console.log("Freeze"+layer.name)
-          serviceHierarchy.each(function(n){
-            n.fx  = n.x;
-            n.fy  = n.y;
-          })
-        }
+            var freeze = function() {
+              console.log("Freeze"+layer.name)
+              serviceHierarchy.each(function(n){
+                n.fx  = n.x;
+                n.fy  = n.y;
+              })
+            }
 
-        var hierarchyTick2 = function() {
-          var node = serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
+            var layer = this;
+            d3.forceSimulation()
+              .nodes(nodes)
+              //.force(serviceTransform.name+"charge", d3.forceManyBody())
+              .force(serviceTransform.name+"collide",d3.forceCollide(1.5*nodesize))
+              .force(serviceTransform.name+"X",d3.forceX(serviceTransform.cx).strength(0.001))
+              .force(serviceTransform.name+"Y",d3.forceY(serviceTransform.cy).strength(0.001))
+              .force(serviceTransform.name+"Y",d3.forceCenter(serviceTransform.cx,serviceTransform.cy))
+              .velocityDecay(0.2)
+              .on("tick", function(){ 
+                layer.componentTick() } )
+              .on("end",freeze)
+        }        
+
+        var componentTick = function() {          
+          var node = this.serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
           node.attr("transform", function(d) {
             return "translate(" + d.x + ", " + d.y + ")"; })
 
             if(interlinks){
-              var interface = serviceContext.selectAll(".interface").data(interlinks, function(d) { return "interface-"+d.source.id+d.target.id;});
+              var interface = this.serviceContext.selectAll(".interface").data(interlinks, function(d) { return "interface-"+d.source.id+d.target.id;});
               interface.attr("x1", function(d) {
                   return d.source.x; })
                         .attr("y1", function(d) {   return (d.source.y); })
                         .attr("x2", function(d) {   return d.target.x; })
                         .attr("y2", function(d) { return (d.target.y); })
-            }
+            }              
         }
-
-        d3.forceSimulation()
-          .nodes(nodes)
-          //.force(serviceTransform.name+"charge", d3.forceManyBody())
-          .force(serviceTransform.name+"collide",d3.forceCollide(1.5*nodesize))
-          .force(serviceTransform.name+"X",d3.forceX(serviceTransform.cx).strength(0.001))
-          .force(serviceTransform.name+"Y",d3.forceY(serviceTransform.cy).strength(0.001))
-          .force(serviceTransform.name+"Y",d3.forceCenter(serviceTransform.cx,serviceTransform.cy))
-          .on("tick", hierarchyTick2)
-          .on("end",freeze)
-        }
-        function serviceClicked(n){
+        var componentClicked = function(n){
             var nd = d3.select(this);
             var selected = !nd.classed("selected")
-            nd.data.selected=selected;
+            n.data.selected=selected;
             nd.classed("selected",selected);
             stack.nodeClicked(n,nd);            
-            stack.solution.refresh();
         }
         function dragstarted(d) {
           if (!d3.event.active) {
             simulation.alpha(0.1).restart();
           }
-          //d.fx = d.x;
-          //d.fy = d.y;
-          tick();
+          d.fx = d.x;
+          d.fy = d.y;
+          //provisionTick();
+          simulation.restart()
         }
         function dragged(d) {
             d.fx = d3.event.x;
             d.fy = d3.event.y;
-            tick();
+            //provisionTick();
         }
-
         function dragended(d) {
             if (!d3.event.active) {
                 simulation.alphaTarget(0.001).restart();
                 simulation.restart();
               }
-            d.fx = null;
-            d.fy = null;
-            tick();
+            //d.fx = null;
+            //d.fy = null;
+            
         }
         function interlinks(nodeHierarchy,interrelationships){
 
@@ -246,21 +272,24 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           })
           return links;
         }
-        var layerObject =  { 
-            renderServices, 
+        var layerObject =  {
+            serviceContext: null, 
+            renderServices,
+            provisionTick, 
+            componentTick,
             getComponentNodes: function() {return nodes},
-            getComponents: function() {return layer.components},
+            getComponents: function() {return layerConfig.components},
             hierarchy: serviceHierarchy, 
             dependencies: interlinks
         }
-        Object.assign(layerObject,layer);
+        Object.assign(layerObject,layerConfig);
         return layerObject;
       }
 
       var layerobjects = [];
       
       stack.layers.forEach(function(layer){
-          layerobjects.push(createServices(layer))
+          layerobjects.push(createLayer(layer))
       })
       stack.layers = layerobjects;
 
@@ -268,35 +297,15 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
 
       var stackContext,userContext,siteContext,deviceContext,serviceContext;
 
-      var setupServiceForce = function(){
+      var setupLayerForce = function(){
         var allnodes = stack.allNodes();
         simulation= d3.forceSimulation()
           .nodes(allnodes)
-          .on("tick", function(){stack.tick()})
-
-        // var allservices = allServices();
-        // simulation2= d3.forceSimulation()
-        //   .nodes([])
-        //   .on("tick", tick)
-
+          .on("tick", function(){
+            stack.solution.provisionTick()})
+          .stop();
       }
-      setupServiceForce();
-
-      function tick() {
-        //console.log(stackname)
-        if(this.servicelinks.links && this.servicelinks.links.length>0){
-          var allnodes = stack.allNodes();
-          var node = svg.selectAll('.node').data(allnodes, function(d) {return d.id;  });
-          node.attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; });
-
-          var user = stackContext.selectAll(".user").data(this.servicelinks.links, function(d) { return "user-"+d.source.id+d.target.id;  });
-          user.attr("x1", function(d) {return d.source.x; })
-              .attr("y1", function(d) { return (d.source.y); })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; })
-              .attr("style","marker-end: url(#triangle)")
-        }
-      }
+      setupLayerForce();
 
       function provision(nodes=[],dependencies=[],selected=(n)=> n.data.selected ? true: false,extension=()=>null,interLayerLinkFactory=()=>null){
 
@@ -304,23 +313,21 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         var extensionFn = this.extensionFactory ? this.extensionFactory : extension;
         var interLayerLinkFactoryFn = this.interLayerLinkFactory ? this.interLayerLinkFactory : interLayerLinkFactory;
 
-      
         var links = [];
-        const nodeIndex = {};
-
-        //Hash of all nodes
+        
+        //Update the index of all nodes for nodes in this stack
         nodes.forEach(function(node){
           nodeIndex[node.data.id]=node;
         });
             
       
-        this.provisionedNodes= nodes.filter(selectionFn);//all selected nodes
+        this.selectedNodes= nodes.filter(selectionFn);//all selected nodes
         
         var linksHash = {};//The set of linsk
         var provisionedNodesHash = {};//The set of provisioned nodes
 
         var visited =[];
-        this.provisionedNodes.forEach(function(node){
+        this.selectedNodes.forEach(function(node){
           visited.push(node.data.id);
           provisionedNodesHash[node.data.id]=node;
         })
@@ -348,6 +355,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
                         links.push({source: t, target: extensionNode})
                         visited.push(extensionNode.data.id);
                         provisionedNodesHash[extensionNode.data.id]=extensionNode;
+                        nodeIndex[extensionNode.data.id]=extensionNode;
                     }                
                   }
                 }
@@ -365,8 +373,8 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
 
         var iterator = combo(linkedservicenodes,2);
         for (var item of iterator) {
-          if(item[0].layerType!=item[1].layerType){
-            var interlayerlink = interLayerLinkFactoryFn(item[0],item[1]);
+          if(item[0].data.layerType!=item[1].data.layerType){
+            var interlayerlink = interLayerLinkFactoryFn(model.constraints,item[0],item[1]);
             if(interlayerlink)
               links.push(interlayerlink);      
             }        
@@ -383,12 +391,47 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       }
 
       function nodeClicked(datanode,nd){
-        this.servicelinks = this.provision(this.allNodes(),this.allDependencies(),this.selectionFunction,this.extensionFactory,this.interLayerLinkFactory)
+        this.provisioned = this.provision(this.allNodes(),this.allDependencies(),this.selectionFunction,this.extensionFactory,this.interLayerLinkFactory)
         this.solution.emergentlinks = this.solution.emerge();
+
+        var w = width/2*this.stackNumber + width/4;
+        var h = height/2;
+        simulation
+          .nodes(this.provisioned.nodes)
+          .force("user", d3.forceLink(this.provisioned.links).id(function(d) {return d.id }))
+          //.force("charge", d3.forceManyBody())
+          .force("collide",d3.forceCollide( function(d){ return 2*nodesize }))
+          .force("center", d3.forceCenter(w, h));
+
+
+          // simulation2
+          // .nodes(provisioned.nodes)
+          // .force("center", d3.forceCenter(w, h));
+
+            simulation.alpha(1).restart();
+            //simulation2.alpha(1).restart();
       }
         
-      function refresh(){
-        user = stackContext.selectAll(".user").data(this.servicelinks.links, function(d) { return "user-"+d.source.id+d.target.id;  });
+      function provisionTick(){
+        var lyrs = this.layers;
+        lyrs.forEach(function(layer){
+          layer.componentTick();          
+        })
+
+        if(this.provisioned.links && this.provisioned.links.length>0){
+          var allnodes = stack.allNodes();
+          var node = svg.selectAll('.node').data(allnodes, function(d) {return d.id;  });
+          node.attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; });
+
+          var user = stackContext.selectAll(".user").data(this.provisioned.links, function(d) { return "user-"+d.source.id+d.target.id;  });
+          user.attr("x1", function(d) {return d.source.x; })
+              .attr("y1", function(d) { return (d.source.y); })
+              .attr("x2", function(d) { return d.target.x; })
+              .attr("y2", function(d) { return d.target.y; })
+              .attr("style","marker-end: url(#triangle)")
+        }
+
+        var user = stackContext.selectAll(".user").data(this.provisioned.links, function(d) { return "user-"+d.source.id+d.target.id;  });
         user.exit().remove();
         user.enter().insert("line", ".user")
             .attr("id", function(d){
@@ -399,23 +442,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; });
 
-          var w = width/2*this.stackNumber + width/4;
-          var h = height/2;
-        
-          simulation
-          .nodes(this.servicelinks.nodes)
-          .force("user", d3.forceLink(this.servicelinks.links).id(function(d) {return d.id }))
-          //.force("charge", d3.forceManyBody())
-          .force("collide",d3.forceCollide( function(d){ return 2*nodesize }))
-          .force("center", d3.forceCenter(w, h));
-
-
-          // simulation2
-          // .nodes(servicelinks.nodes)
-          // .force("center", d3.forceCenter(w, h));
-
-            simulation.alpha(1).restart();
-            //simulation2.alpha(1).restart();
+                  
       }
 
       return stack ;
@@ -439,7 +466,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
   function setCrossStackLinkFactory(f){
     this.crossStackLinkFactory =f;      
   }
-  model.forEach(function(stackConfig){
+  model.stacks.forEach(function(stackConfig){
     var stack = createStack(stackConfig);
     stacks.push(stack);    
   })
@@ -449,8 +476,10 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
     stack.hashLayerTypes(layerTypeHash);
   })
   var solution = {
+      emergentlinks: [],
       emerge,
       render,
+      provisionTick,
       layerTypeHash,
       getStacks:  function() { return stacks},
       setSelectionFunction: setSelectionFunction,
