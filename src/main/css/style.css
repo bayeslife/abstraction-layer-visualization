@@ -2,7 +2,14 @@
   cursor: pointer;
   stroke: #0000FF;
   font-size: 0.6em;
+  opacity: 0.25
+}
 
+.frozen{
+  opacity: 0.5
+}
+.satisfied{
+  opacity: 1
 }
 
 .category {
@@ -36,6 +43,14 @@
   opacity: 0.5;
 }
 
+
+.emergent {
+  fill: none;
+  stroke: #00FF00;
+  stroke-width: 1.5px;
+  opacity: 0.5;
+}
+
 .link {
   fill: none;
   stroke: #9ecae1;
@@ -45,8 +60,8 @@
 
 .interface {
   fill: none;
-  stroke: #cae19e;
-  stroke-width: 2px;
+  stroke: #CCFFCC;
+  stroke-width: 1px;
   opacity: 0.9;
 }
 

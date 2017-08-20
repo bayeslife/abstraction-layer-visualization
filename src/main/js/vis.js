@@ -4,16 +4,19 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
 
   var combo = require('combinations-generator');
 
+  var constraintEngineFactory = require("constraints-engine");
+
   const nodesize=options.nodesize;
 
   var margin=30, width = options.width, height = options.height;
+  var TRANSITION_DURATION = 500;
 
   var chartWidth = width;
   var chartHeight = height/3;
 
   var svg;
 
-  var stacks = [];  
+  var stacks = [];
 
   var emergentContext;
 
@@ -21,14 +24,8 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
 
   const model = modelFactory({nodesize: nodesize, width: width, height: height});
 
-  const constraints = denormalizeConstraints(model.constraints);
+  const constraintsEngine = constraintEngineFactory.compile(model.constraints,{explicit: false});
 
-  function denormalizeConstraints(constraints=[]){
-    var constraintMap = {};
-    constraints.forEach(function(constraint){
-      cons
-    })
-  }
 
   function emerge(crossStackLinkFactoryFn=()=>null){
     var crossStackLinkFactory = this.crossStackLinkFactory ? this.crossStackLinkFactory : crossStackLinkFactoryFn;
@@ -38,10 +35,13 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       var layerTypeFilter = function(n){
         return n.data.layerType === layerType
       }
+      var satisfiedFilter = function(n){
+        return n.data.satisifed
+      }
 
       stacks.forEach(function(stack,index){
         if(index<stacks.length-1){
-          var stackNodes = stack.getProvisionedNodes().filter(layerTypeFilter);
+          var stackNodes = stack.getProvisionedNodes().filter(layerTypeFilter).filter(satisfiedFilter);
           var nextStackNodes = stacks[index+1].getProvisionedNodes().filter(layerTypeFilter);
           var combinations = cartesian(stackNodes,nextStackNodes);
           combinations.forEach(function(pair=[]){
@@ -53,12 +53,43 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
     return links;
   };
 
+  var tooltip;
+
+  function hideTooltip() {
+    tooltip.selectAll("*").remove();
+    return tooltip.transition()
+      .duration(TRANSITION_DURATION)
+      .style("opacity", 0);
+  }
+
+  function showTooltip() {
+    return tooltip
+      .style("left", d3.event.pageX + "px")
+      .style("top", d3.event.pageY + 15 + "px")
+      .transition()
+      .duration(TRANSITION_DURATION)
+      .style("opacity", 1);
+  }
+
+  function mouseouted(node) {
+    hideTooltip();
+  }
+
+  function mouseovered(node) {
+    showTooltip();
+  }
+
   var render = function(){
     svg = d3.select("#e2e").append("svg")
       .attr("width", chartWidth)
       .attr("height", height);
 
-    emergentContext = svg.append("g").attr("nm","emergent");  
+    tooltip = d3.select("#e2e").append("div").attr("id", "tooltip");
+
+    tooltip.text("test");
+   
+
+    emergentContext = svg.append("g").attr("nm","emergent");
 
       svg.append("marker").attr("id","triangle")
         .attr("refX",12)
@@ -76,7 +107,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
   var provisionTick = function(){
     stacks.forEach(function(stack){
       stack.provisionTick();
-    })    
+    })
     var emergentlinkSelection = emergentContext.selectAll(".emergent").data(this.emergentlinks, function(d) { return "el-"+d.source.id+d.target.id;  });
       emergentlinkSelection.exit().remove();
       emergentlinkSelection.enter().insert("line", ".emergent")
@@ -86,9 +117,9 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return (d.source.y); })
         .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });  
+        .attr("y2", function(d) { return d.target.y; });
   }
-  var createStack = function(stackConfig){    
+  var createStack = function(stackConfig){
     var renderStack = function(svg){
 
       stackContext = svg.append("g").attr("nm",this.stackName);
@@ -98,10 +129,10 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         layer.renderServices(layer.context);
       })
     }
-    function hashLayerTypes(hash){      
+    function hashLayerTypes(hash){
       this.layers.forEach(function(layer){
         hash[layer.type]=layer
-      })      
+      })
     }
     function allNodes(){
       var all = [];
@@ -117,24 +148,23 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           all = all.concat(layer.dependencies)
       })
       return all;
-    }    
-    var stack = { 
+    }
+    var stack = {
       hierarchies: [],
       provisioned: { links: [], nodes: [] },
       selectedNodes: [],
       getLayers: function(){return this.layers},
       hashLayerTypes,
-      allNodes,      
+      allNodes,
       allDependencies,
       getProvisionedNodes: function(){return this.provisioned.nodes},
       renderStack,
       provisionTick,
       nodeClicked,
       provision,
-      //buildprovisioned,      
+      //buildprovisioned,
       selectionFunction: null,
-      extensionFactory: null,
-      interLayerLinkFactory: null
+      extensionFactory: null
     }
     Object.assign(stack,stackConfig);
     var simulation,simulation2=null;
@@ -154,8 +184,8 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         serviceHierarchy.each(function(n){n.fixed = serviceTransform.fixed})
         serviceHierarchy.each(function(n){
           n.data.layerType = layerConfig.type})
-                
-        var renderServices = function(serviceCtxt){           
+
+        var renderServices = function(serviceCtxt){
             this.serviceContext = serviceCtxt;
             // Update the nodes…
             var node = this.serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
@@ -169,10 +199,12 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
               .attr("cx", function(d) { return 0; })
               .attr("cy", function(d) { return 0; })
               .attr("r", function(d) { return nodesize; })
-              .call(d3.drag()
-                        .on("start", dragstarted)
-                        .on("drag", dragged)
-                        .on("end", dragended))
+              // .call(d3.drag()
+              //           .on("start", dragstarted)
+              //           .on("drag", dragged)
+              //           .on("end", dragended))
+              .on("mouseover", mouseovered)
+              .on("mouseout", mouseouted)
               .on("click",componentClicked)
               .classed(serviceTransform.style,true)
             nodeg.append("text").text(function(d){ return d.data.name;}).attr("text-anchor",serviceTransform.anchor)
@@ -189,15 +221,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
                   .attr("y2", function(d) { return (d.target.y); })
                   .attr("style","marker-end: url(#triangle)")
             }
-
-            var freeze = function() {
-              console.log("Freeze"+layer.name)
-              serviceHierarchy.each(function(n){
-                n.fx  = n.x;
-                n.fy  = n.y;
-              })
-            }
-
+            
             var layer = this;
             d3.forceSimulation()
               .nodes(nodes)
@@ -207,12 +231,21 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
               .force(serviceTransform.name+"Y",d3.forceY(serviceTransform.cy).strength(0.001))
               .force(serviceTransform.name+"Y",d3.forceCenter(serviceTransform.cx,serviceTransform.cy))
               .velocityDecay(0.2)
-              .on("tick", function(){ 
-                layer.componentTick() } )
-              .on("end",freeze)
-        }        
+              .on("tick", function(){ layer.componentTick() } )
+              .on("end",function(){ layer.freeze()})
+        }
 
-        var componentTick = function() {          
+         var freeze = function() {
+              console.log("Freeze"+this.name)
+              this.hierarchy.each(function(n){
+                n.fx  = n.x;
+                n.fy  = n.y;
+              })
+              var node = this.serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
+              node.classed("frozen",true);
+          }
+
+        var componentTick = function() {
           var node = this.serviceContext.selectAll(".node").data(nodes, function(d) {return d.id;  });
           node.attr("transform", function(d) {
             return "translate(" + d.x + ", " + d.y + ")"; })
@@ -224,14 +257,14 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
                         .attr("y1", function(d) {   return (d.source.y); })
                         .attr("x2", function(d) {   return d.target.x; })
                         .attr("y2", function(d) { return (d.target.y); })
-            }              
+            }
         }
         var componentClicked = function(n){
             var nd = d3.select(this);
             var selected = !nd.classed("selected")
             n.data.selected=selected;
             nd.classed("selected",selected);
-            stack.nodeClicked(n,nd);            
+            stack.nodeClicked(n,nd);
         }
         function dragstarted(d) {
           if (!d3.event.active) {
@@ -254,7 +287,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
               }
             //d.fx = null;
             //d.fy = null;
-            
+
         }
         function interlinks(nodeHierarchy,interrelationships){
 
@@ -273,13 +306,14 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           return links;
         }
         var layerObject =  {
-            serviceContext: null, 
+            serviceContext: null,
             renderServices,
-            provisionTick, 
+            provisionTick,
             componentTick,
+            freeze,
             getComponentNodes: function() {return nodes},
             getComponents: function() {return layerConfig.components},
-            hierarchy: serviceHierarchy, 
+            hierarchy: serviceHierarchy,
             dependencies: interlinks
         }
         Object.assign(layerObject,layerConfig);
@@ -287,7 +321,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       }
 
       var layerobjects = [];
-      
+
       stack.layers.forEach(function(layer){
           layerobjects.push(createLayer(layer))
       })
@@ -307,22 +341,21 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       }
       setupLayerForce();
 
-      function provision(nodes=[],dependencies=[],selected=(n)=> n.data.selected ? true: false,extension=()=>null,interLayerLinkFactory=()=>null){
+      function provision(nodes=[],dependencies=[],selected=(n)=> n.data.selected ? true: false,extension=()=>null){
 
         var selectionFn = this.selectionFunction ? this.selectionFunction : selected;
-        var extensionFn = this.extensionFactory ? this.extensionFactory : extension;
-        var interLayerLinkFactoryFn = this.interLayerLinkFactory ? this.interLayerLinkFactory : interLayerLinkFactory;
+        var extensionFn = this.extensionFactory ? this.extensionFactory : extension;        
 
         var links = [];
-        
+
         //Update the index of all nodes for nodes in this stack
         nodes.forEach(function(node){
           nodeIndex[node.data.id]=node;
         });
-            
-      
+
+
         this.selectedNodes= nodes.filter(selectionFn);//all selected nodes
-        
+
         var linksHash = {};//The set of linsk
         var provisionedNodesHash = {};//The set of provisioned nodes
 
@@ -331,7 +364,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           visited.push(node.data.id);
           provisionedNodesHash[node.data.id]=node;
         })
-            
+
         function visit(ids,visited){
           if(ids.length==0)
             return;
@@ -342,7 +375,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
               if(index>=0){
                 var s = nodeIndex[interface.source];
                 var t = nodeIndex[interface.target]
-                if(s && t){                
+                if(s && t){
                   provisionedNodesHash[s.data.id] = s;
                   provisionedNodesHash[t.data.id] = t;
                   links.push({ source: s, target: t});
@@ -356,7 +389,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
                         visited.push(extensionNode.data.id);
                         provisionedNodesHash[extensionNode.data.id]=extensionNode;
                         nodeIndex[extensionNode.data.id]=extensionNode;
-                    }                
+                    }
                   }
                 }
               }
@@ -371,15 +404,29 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
           linkedservicenodes.push(provisionedNodesHash[key]);
         })
 
+        //use constraints to establish links between layers.
+        constraintsEngine.reset();
         var iterator = combo(linkedservicenodes,2);
         for (var item of iterator) {
-          if(item[0].data.layerType!=item[1].data.layerType){
-            var interlayerlink = interLayerLinkFactoryFn(model.constraints,item[0],item[1]);
-            if(interlayerlink)
-              links.push(interlayerlink);      
-            }        
+          if(item[0].data.layerType && item[1].data.layerType && item[0].data.layerType!=item[1].data.layerType){   
+            //console.log(item[0].data.name+":"+item[1].data.name)       
+            if(constraintsEngine.getConsistencyCheck(item[0].data.id,item[1].data.id).consistent){
+              constraintsEngine.capture(item[0].data.id,item[1].data.id)
+              links.push(
+                 { source: item[0] , target: item[1] }
+              );
+            }      
+          }
         }
-        
+
+        //identify nodes whose constraints are all satisfied
+        linkedservicenodes.forEach(function(node){
+          node.data.satisfied=false;
+          if(constraintsEngine.getSatisfied(node.data.id)){
+            node.data.satisfied=true;
+          }
+        })
+
         linkedservicenodes.forEach(function(node){
           if(!node.fixed){
             delete node.fx;
@@ -411,17 +458,21 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
             simulation.alpha(1).restart();
             //simulation2.alpha(1).restart();
       }
-        
+
       function provisionTick(){
+        console.log(".");
         var lyrs = this.layers;
         lyrs.forEach(function(layer){
-          layer.componentTick();          
+          layer.componentTick();
         })
 
         if(this.provisioned.links && this.provisioned.links.length>0){
           var allnodes = stack.allNodes();
           var node = svg.selectAll('.node').data(allnodes, function(d) {return d.id;  });
-          node.attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; });
+          node.classed("satisfied",function(d){            
+              return d.data.satisfied
+            })
+            .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; });
 
           var user = stackContext.selectAll(".user").data(this.provisioned.links, function(d) { return "user-"+d.source.id+d.target.id;  });
           user.attr("x1", function(d) {return d.source.x; })
@@ -442,7 +493,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; });
 
-                  
+
       }
 
       return stack ;
@@ -464,13 +515,13 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
     })
   }
   function setCrossStackLinkFactory(f){
-    this.crossStackLinkFactory =f;      
+    this.crossStackLinkFactory =f;
   }
   model.stacks.forEach(function(stackConfig){
     var stack = createStack(stackConfig);
-    stacks.push(stack);    
+    stacks.push(stack);
   })
-  
+
   var layerTypeHash = {}
   stacks.forEach(function(stack){
     stack.hashLayerTypes(layerTypeHash);

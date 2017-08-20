@@ -5,10 +5,11 @@
   "main": "gulpfiles.js",
   "dependencies": {
     "combinations-generator": "^1.0.1",
+    "constraints-engine": "^0.3.0",
     "d3": "^4.10.0"
   },
   "devDependencies": {
-    "bluebird": "^3.5.0",    
+    "bluebird": "^3.5.0",
     "mocha": "^3.4.2",
     "pn": "^1.0.0",
     "underscore": "^1.8.3"

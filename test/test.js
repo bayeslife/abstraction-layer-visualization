@@ -8,21 +8,21 @@ var serviceConstraint={ "id": "requires"};
 
 var userLayerType ="User";
 var userCat1={ "id": "userCategory", name: "usersCategory", parent: "null"};
-var user1 = { "id": "user1", name: "aCustomer", parent: "userCategory"};
-var user1Node = { data: user1, layerType: userLayerType };
+var user1 = { "id": "user1", name: "aCustomer", parent: "userCategory", layerType: userLayerType};
+var user1Node = { data: user1 };
 var usersLayer = { name: "user", type:userLayerType, components:  [userCat1,user1], transform: { name: "userCustomer",cx: 1, cy:1,anchor: "middle", style: "user", fixed: true } };
 
 var serviceLayerType ="Service";
 var servicecat1={ "id": "servicecat1", name: "aServiceCat", parent: "null"};
-var service1 = { "id": "service1", name: "aService1", parent: "servicecat1"};
-var service1Node = { data: service1, layerType: serviceLayerType };
-var service2 = { "id": "service2", name: "aService2", parent: "servicecat1"};  
-var service2Node = { data: service2 , layerType: serviceLayerType};
-var service3 = { "id": "service3", name: "aService3", parent: "servicecat1"};  
-var service3Node = { data: service3 , layerType: serviceLayerType};
+var service1 = { "id": "service1", name: "aService1", parent: "servicecat1", layerType: serviceLayerType};
+var service1Node = { data: service1 };
+var service2 = { "id": "service2", name: "aService2", parent: "servicecat1", layerType: serviceLayerType};  
+var service2Node = { data: service2 };
+var service3 = { "id": "service3", name: "aService3", parent: "servicecat1",layerType: serviceLayerType};  
+var service3Node = { data: service3 };
 
 var extensionId = "extension";
-var extension = { "id": extensionId };  
+var extension = { "id": extensionId, "name": "extension" };  
 var extensionNode = { data: extension };
 function extensionFactory(node,nodeHash){
     if(node.data.id==='service3' && !nodeHash[extensionId]){
@@ -42,36 +42,17 @@ var servicesLayer ={ name: "service", type:"Service",components:  [servicecat1,s
 var constraints = [
   {
     source: serviceConstraint.id,
-    target: user1.id
+    sourcename: "TestConstraint",
+    target: user1.id,
+    type: "Association"
   },
   {
     source: serviceConstraint.id,
-    target: service1.id
+    sourcename: "TestConstraint",
+    target: service1.id,
+    type: "Dependency"
   }
 ]
-
-// function interLayerLinkFactory(constraints,node,node2){
-//     if(node.data.parent === node2.data.parent)
-//       return null;
-//     else {
-//       return {source: node, target:node2};
-//     }  
-// }
-
-function interLayerLinkFactory(constraint,node1,node2){
-    if(node1.data.type=== node2.data.type)
-      return null;
-
-    constraints.forEach(function(constraint){
-  
-      if(node1.data.id === constraint.source && node2.data.id===constraint.target){
-          return { source: node1 , target: node2 }
-      }else if(node2.data.id === constraint.source && node1.data.id===constraint.target){
-        return { source: node2 , target: node1 }
-      }
-  })
-  return null;
-}
 
 function crossStackLinkFactory(node,node2){    
       return {source: node, target:node2};
@@ -186,7 +167,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
       assert.equal(provisioned2.links.length, 0 );
     })
   })
-  describe('When there a chained dependencies', function() {  
+  describe('When there are chained dependencies', function() {  
     var provisioned3;
     before(function(){
        service1['selected']=true;
@@ -206,7 +187,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
     })    
     it('Then extension nodes and links are generated', function() {
       assert.equal(contains(provisioned4.nodes,extensionId), true );
-      assert.equal(provisioned4.links.length, 3 );
+      assert.equal(3,provisioned4.links.length);
     }) 
   })
   describe('When there are multiple dependencies from a node', function() {  
@@ -228,7 +209,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
   //   before(function(){
   //     user1['selected']=true;
   //     service1['selected']=true;
-  //     provisioned = stack.provision([user1Node,service1Node],[],selectionFunction,null,interLayerLinkFactory);
+  //     provisioned = stack.provision([user1Node,service1Node],[],selectionFunction,null);
   //   })    
   //   it('Then links between the layers should be returned', function() {
   //     assert.equal(contains(provisioned.nodes,"service1"), true );
@@ -236,12 +217,12 @@ describe('Given a stack with 2 layers (user and service)', function() {
   //   })
   // })
 
-  describe.only('When a inter layer constraints link factory is defined and there are nodes from different layers', function() {  
+  describe('When a inter layer constraints link factory is defined and there are nodes from different layers', function() {  
     var provisioned;
     before(function(){
       user1['selected']=true;
       service1['selected']=true;
-      provisioned = stack.provision([user1Node,service1Node],[],selectionFunction,null,interLayerLinkFactory);
+      provisioned = stack.provision([user1Node,service1Node],[],selectionFunction,null);
     })    
     it('Then links between the layers should be returned', function() {
       assert.equal(contains(provisioned.nodes,"service1"), true );
