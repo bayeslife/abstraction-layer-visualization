@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "bluebird": "^3.5.0",
+    "browserify": "^14.4.0",
     "mocha": "^3.4.2",
     "pn": "^1.0.0",
     "underscore": "^1.8.3"
@@ -26,8 +27,8 @@
     }
   },
   "scripts": {
-    "test": "mocha",
-    "w": "browserify ./src/main/js/vis.js --standalone vis -o build/vis.js && mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "w": "./node_modules/browserify/bin/cmd.js ./src/main/js/vis.js --standalone vis -o build/vis.js && mocha"
   },
   "author": "Phil Tomlinson",
   "license": "ISC",
