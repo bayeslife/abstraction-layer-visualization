@@ -1,15 +1,15 @@
 .node {
   cursor: pointer;
-  stroke: #0000FF;
-  font-size: 0.6em;
-  opacity: 0.25
+  font-size: 0.7em;
+  opacity: 0.1
 }
 
 .frozen{
-  opacity: 0.5
+  opacity: 0.3
 }
 .satisfied{
-  opacity: 1
+  font-size: 0.8em;
+  opacity: 1;
 }
 
 .category {
@@ -20,25 +20,29 @@
 }
 
 .serviceUser{
-  fill: #FF8888;
+  fill: #FF88FF;
 }
 .device{
   fill: #FFFF88;
 }
+.cpe{
+  fill: #88FFFF;
+}
 .site{
-  fill: #88FF88;
+  fill: #88FFFF;
 }
 .service{
   fill: #8888FF;
 }
 
 .selected{
-  fill: #FFFFFF;
+  color: #FF0000;
+  stroke: #FF0000;
 }
 
 .user {
   fill: none;
-  stroke: #9ecae1;
+  stroke: #FFCCCC;
   stroke-width: 1.5px;
   opacity: 0.5;
 }
@@ -60,9 +64,9 @@
 
 .interface {
   fill: none;
-  stroke: #CCFFCC;
+  stroke: #FF0000;
   stroke-width: 1px;
-  opacity: 0.9;
+  opacity: 1;
 }
 
 
