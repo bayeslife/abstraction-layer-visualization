@@ -54,26 +54,34 @@ var constraints = [
   }
 ]
 
+var emergentConstraints = [
+]
+
 function crossStackLinkFactory(node,node2){    
       return {source: node, target:node2};
 }
 
-let solutionFactory = function(){
-  return {
-    constraints,
-    stacks: [{
+var stacks = [{
       stackNumber: 0,
       stackName: "Stack0",
+      constraints: [],
       layers: [ usersLayer, servicesLayer ],
     },{
       stackNumber: 1,
       stackName: "Stack1",
+      constraints: [],
       layers: [ usersLayer, servicesLayer ],
-    }]
+    }] 
+
+let solutionFactory = function(){
+  return {    
+    emergentConstraints,
+    stacks 
   };
 }
 
-const visualization = vis.createVisualization(solutionFactory,{width:100,height:100});
+
+let visualization = vis.createVisualization(solutionFactory,{width:100,height:100});
 
 //Does the list of hierarchyNodes contain a node with a specific id
 function contains(ls = [], id){
@@ -86,12 +94,15 @@ function contains(ls = [], id){
 }
 
 describe('Given a stack with 2 layers (user and service)', function() {  
+  
+  let stack= visualization.getStacks()[0];
+  let stack1 = visualization.getStacks()[1];
+
   visualization.setSelectionFunction(selectionFunction);  
-
-  const stack = visualization.getStacks()[0];
-  const stack1 = visualization.getStacks()[1];
-
+    
   beforeEach(function(){
+    
+    
     user1['selected']=false;
     service1['selected']=false;
   })
@@ -233,10 +244,7 @@ describe('Given a stack with 2 layers (user and service)', function() {
   describe('When cross stack link function is defined', function() {  
     var provisioned,provisioned1;
     before(function(){
-      user1['selected']=true;      
-      //provisioned = stack.provision([user1Node],[],selectionFunction,null,null);
-      //provisioned1 = stack1.provision([user1Node],[],selectionFunction,null,null);
-      //emergentlinks = visualization.emerge(crossStackLinkFactory);
+      user1['selected']=true;         
       stack.nodeClicked(user1Node);
       stack1.nodeClicked(user1Node);
     })    
