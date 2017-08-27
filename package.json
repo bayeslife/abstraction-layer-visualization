@@ -1,6 +1,6 @@
 {
   "name": "layer-visualization",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A library which renders d3 svg diagrams",
   "main": "gulpfiles.js",
   "dependencies": {
@@ -32,5 +32,9 @@
   },
   "author": "Phil Tomlinson",
   "license": "ISC",
-  "homepage": "https://xceptionale.co"
+  "homepage": "https://xceptionale.com",
+"repository" :
+  { "type" : "git"
+  , "url" : "https://github.com/bayeslife/abstraction-layer-visualization"
+  }
 }
