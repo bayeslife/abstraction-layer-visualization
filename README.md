@@ -153,3 +153,12 @@ The transform anchor property determines the position of the text anchor for the
   fixed: true
 }
 ~~~
+
+### Example
+
+In this sample there are couple of users, devices, services and locations at a customer along with partner sites.
+As items are selected the dependencies and interrelationships result in emergent diagram.
+
+![alt text][example]
+
+[example]: images/animation.gif "Sample animation"
