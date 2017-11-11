@@ -5,7 +5,7 @@
   "main": "gulpfiles.js",
   "dependencies": {
     "combinations-generator": "^1.0.1",
-    "constraints-engine": "^0.3.0",
+    "constraints-engine": "^0.4.0",
     "d3": "^4.10.0"
   },
   "devDependencies": {
@@ -33,8 +33,8 @@
   "author": "Phil Tomlinson",
   "license": "ISC",
   "homepage": "https://xceptionale.com",
-"repository" :
-  { "type" : "git"
-  , "url" : "https://github.com/bayeslife/abstraction-layer-visualization"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bayeslife/abstraction-layer-visualization"
   }
 }

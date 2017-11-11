@@ -29,7 +29,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
 
   var emergentConstraintsEngine = constraintEngineFactory.compile(model.emergentConstraints,{explicit: true});
 
-  function emerge(constraintsEngine,crossStackLinkFactoryFn=()=>null){  
+  function emerge(constraintsEngine,crossStackLinkFactoryFn=()=>null){
     var crossStackLinkFactory = this.crossStackLinkFactory ? this.crossStackLinkFactory : crossStackLinkFactoryFn;
 
     var links = [];
@@ -37,19 +37,19 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       var layerTypeFilter = function(n){
         return n.data.layerType === layerType
       }
-      var satisfiedFilter = function(n){        
+      var satisfiedFilter = function(n){
         return n.data.satisfied!=undefined && n.data.satisfied
-      }      
+      }
 
       stacks.forEach(function(stack,index){
         if(index<stacks.length-1){
           var stackNodes = stack.getProvisionedNodes().filter(layerTypeFilter).filter(satisfiedFilter);
           var nextStackNodes = stacks[index+1].getProvisionedNodes().filter(layerTypeFilter).filter(satisfiedFilter);
           var combinations = cartesian(stackNodes,nextStackNodes);
-          combinations.forEach(function(pair=[]){            
+          combinations.forEach(function(pair=[]){
             if(constraintsEngine.getConsistencyCheck(pair[0].data.id,pair[1].data.id).consistent){
               links.push(crossStackLinkFactory(pair[0],pair[1]))
-            }            
+            }
           })
         }
       })
@@ -58,16 +58,29 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
   };
 
   function hideTooltip() {
-    tooltip.selectAll("*").remove();
     return tooltip.transition()
       .duration(TRANSITION_DURATION)
       .style("opacity", 0);
   }
 
   function showTooltip(node) {
-    tooltip.text(node.data.name+ node.data.unsatisifiedConstraints);
+    tooltip.selectAll("*").remove();
+    tooltip.text(node.data.name);
+    if(node.data.description){
+      tooltip.append("p").text(node.data.description)
+    }
+    if(node.data.unsatisifiedConstraints){
+      tooltip.append("p");
+      var ct = tooltip.append("table").classed("table","true");
+      var tr = ct.append("tr");
+      tr.append("th").text("Unsatisified Constraints");
+      node.data.unsatisifiedConstraints.forEach(function(constraint){
+        var tr2 = ct.append("tr");
+        tr2.append("td").text(constraint);
+      })
+    }
     return tooltip
-      .style("left", d3.event.pageX + "px")
+      .style("left", d3.event.pageX + 15 +"px")
       .style("top", d3.event.pageY - 15 + "px")
       .transition()
       .duration(TRANSITION_DURATION)
@@ -91,7 +104,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
     tooltip = d3.select("#e2e").append("div").attr("id", "tooltip");
 
     emergentContext = svg.append("g").attr("nm","emergent");
-    
+
       svg.append("marker").attr("id","triangle")
         .attr("refX",20)
         .attr("refY",6)
@@ -116,15 +129,19 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return (d.source.y); })
         .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+        .attr("y2", function(d) { return d.target.y; })
+        .style("opacity", 0.1)
+        .transition()
+          .duration(10*TRANSITION_DURATION)
+          .style("opacity", 1);
   }
-  
+
   var provisionTick = function(){
     stacks.forEach(function(stack){
       stack.provisionTick();
     })
 
-    var emergentlinkSelection = emergentContext.selectAll(".emergent").data(this.emergentlinks, function(d) { return "el-"+d.source.id+d.target.id;  });        
+    var emergentlinkSelection = emergentContext.selectAll(".emergent").data(this.emergentlinks, function(d) { return "el-"+d.source.id+d.target.id;  });
         emergentlinkSelection
         .attr("id", function(d){
           return "el-"+d.source.id+d.target.id;})
@@ -184,6 +201,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       renderEmergent,
       provision,
       //buildprovisioned,
+      applyConstraintsFn: null,
       selectionFunction: null,
       extensionFactory: null,
       constraintsEngine
@@ -302,7 +320,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         }
         function dragged(d) {
             d.fx = d3.event.x;
-            d.fy = d3.event.y;            
+            d.fy = d3.event.y;
             //stack.provisionTick();
         }
         function dragended(d) {
@@ -433,12 +451,14 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
         var iterator = combo(linkedservicenodes,2);
         for (var item of iterator) {
           if(item[0].data.layerType && item[1].data.layerType && item[0].data.layerType!=item[1].data.layerType){
-            //console.log(item[0].data.name+":"+item[1].data.name)
-            if(constraintsEngine.getConsistencyCheck(item[0].data.id,item[1].data.id).consistent){
-              constraintsEngine.capture(item[0].data.id,item[1].data.id)
-              links.push(
-                 { source: item[0] , target: item[1] }
-              );
+            if(applyConstraintsFn(item[0].data.layerType,item[1].data.layerType)){
+              //console.log(item[0].data.name+":"+item[1].data.name)
+              if(constraintsEngine.getConsistencyCheck(item[0].data.id,item[1].data.id).consistent){
+                constraintsEngine.capture(item[0].data.id,item[1].data.id)
+                links.push(
+                   { source: item[0] , target: item[1] }
+                );
+              }
             }
           }
         }
@@ -473,7 +493,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       function nodeClicked(datanode,nd){
         this.provisioned = this.provision(this.allNodes(),this.allDependencies(),this.selectionFunction,this.extensionFactory,this.interLayerLinkFactory)
         this.solution.emergentlinks = this.solution.emerge(this.solution.emergentConstraintsEngine);
-      
+
         var w = width/2*this.stackNumber + width/4;
         var h = height/2;
         simulation
@@ -492,7 +512,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
             //simulation2.alpha(1).restart();
       }
 
-      function provisionTick(){        
+      function provisionTick(){
         var lyrs = this.layers;
         lyrs.forEach(function(layer){
           layer.componentTick();
@@ -531,6 +551,11 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       return stack ;
     }
 
+  function setApplyConsraintsFunction(f){
+    stacks.forEach(function(stack){
+      stack.applyConstraintsFn =f;
+    })
+  }
   function setSelectionFunction(f){
     stacks.forEach(function(stack){
       stack.selectionFunction =f;
@@ -567,6 +592,7 @@ function createVisualization(modelFactory,options= { nodesize: 10,width:100,heig
       provisionTick,
       layerTypeHash,
       getStacks:  function() { return stacks},
+      setApplyConsraintsFunction: setApplyConsraintsFunction,
       setSelectionFunction: setSelectionFunction,
       setExtensionFactory: setExtensionFactory,
       setInterLayerLinkFactory: setInterLayerLinkFactory,
